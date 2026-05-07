@@ -2,18 +2,16 @@
 //  ContentView.swift
 //  demo
 //
-//  Created by omatsu on 2026/05/07.
-//
 
 import SwiftUI
+import ParentSDK
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        VStack(spacing: 24) {
+            Text("Demo App")
+                .font(.title)
+            ParentButton()
         }
         .padding()
     }

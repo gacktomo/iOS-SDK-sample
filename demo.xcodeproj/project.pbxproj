@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		A1B2C3D40000000000000003 /* ParentSDK in Frameworks */ = {isa = PBXBuildFile; productRef = A1B2C3D40000000000000002 /* ParentSDK */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		0F3655B52FAC791900B1BCFE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1B2C3D40000000000000003 /* ParentSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +117,7 @@
 			);
 			name = demo;
 			packageProductDependencies = (
+				A1B2C3D40000000000000002 /* ParentSDK */,
 			);
 			productName = demo;
 			productReference = 0F3655A72FAC791800B1BCFE /* demo.app */;
@@ -195,6 +201,9 @@
 			);
 			mainGroup = 0F36559E2FAC791800B1BCFE;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				A1B2C3D40000000000000001 /* XCLocalSwiftPackageReference "ParentSDK" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0F3655A82FAC791800B1BCFE /* Products */;
 			projectDirPath = "";
@@ -605,6 +614,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		A1B2C3D40000000000000001 /* XCLocalSwiftPackageReference "ParentSDK" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ParentSDK;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A1B2C3D40000000000000002 /* ParentSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ParentSDK;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0F36559F2FAC791800B1BCFE /* Project object */;
 }
