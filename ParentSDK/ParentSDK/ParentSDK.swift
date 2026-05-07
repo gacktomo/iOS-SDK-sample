@@ -3,22 +3,14 @@
 //  ParentSDK
 //
 
-import SwiftUI
+import Foundation
 import ChildrenSDK
 
-public struct ParentButton: View {
-    private let title: String
-
-    public init(title: String = "Open BaaS") {
-        self.title = title
+public enum ParentSDK {
+    #if canImport(UIKit)
+    @MainActor
+    public static func presentChildren() {
+        ChildrenSDK.presentHelloWorld()
     }
-
-    public var body: some View {
-        Button(title) {
-            #if canImport(UIKit)
-            ChildrenSDK.presentHelloWorld()
-            #endif
-        }
-        .buttonStyle(.borderedProminent)
-    }
+    #endif
 }
