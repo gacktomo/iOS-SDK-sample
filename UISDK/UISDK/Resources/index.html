@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>UISDK</title>
+    <style>
+        :root {
+            color-scheme: light dark;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            background: #ffffff;
+            color: #1c1c1e;
+        }
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #1c1c1e;
+                color: #f2f2f7;
+            }
+        }
+        h1 {
+            font-size: 22px;
+            margin: 0 0 8px;
+        }
+        p {
+            margin: 0 0 32px;
+            opacity: 0.7;
+            font-size: 15px;
+        }
+        button.close {
+            appearance: none;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 32px;
+            font-size: 17px;
+            font-weight: 600;
+            background: #007aff;
+            color: #ffffff;
+            cursor: pointer;
+            min-width: 180px;
+        }
+        button.close:active {
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <h1>UISDK WebView</h1>
+    <p>HTML &amp; ネイティブの連携サンプル</p>
+    <button class="close" id="closeButton">閉じる</button>
+
+    <script>
+        (function () {
+            function postToNative(payload) {
+                try {
+                    if (window.webkit
+                        && window.webkit.messageHandlers
+                        && window.webkit.messageHandlers.uiBridge) {
+                        window.webkit.messageHandlers.uiBridge.postMessage(payload);
+                    }
+                } catch (e) {
+                    console.error("native bridge failed", e);
+                }
+            }
+
+            document.getElementById("closeButton").addEventListener("click", function () {
+                postToNative({ action: "close" });
+            });
+        })();
+    </script>
+</body>
+</html>

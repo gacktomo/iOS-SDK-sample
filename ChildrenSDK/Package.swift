@@ -7,9 +7,13 @@ let package = Package(
     products: [
         .library(name: "ChildrenSDK", targets: ["ChildrenSDK"]),
     ],
+    dependencies: [
+        .package(path: "../UISDK"),
+    ],
     targets: [
         .target(
             name: "ChildrenSDK",
+            dependencies: ["UISDK"],
             path: "ChildrenSDK",
             exclude: ["ChildrenSDK.docc"]
         ),
