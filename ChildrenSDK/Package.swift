@@ -15,7 +15,10 @@ let package = Package(
             name: "ChildrenSDK",
             dependencies: ["UISDK"],
             path: "ChildrenSDK",
-            exclude: ["ChildrenSDK.docc"]
+            exclude: ["ChildrenSDK.docc"],
+            resources: [
+                .process("Resources"),
+            ]
         ),
     ]
 )

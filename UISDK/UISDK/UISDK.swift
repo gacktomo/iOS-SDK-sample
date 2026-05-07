@@ -10,10 +10,21 @@ import UIKit
 import WebKit
 
 public enum UISDK {
+    /// Present a WebView modally.
+    ///
+    /// - Parameters:
+    ///   - htmlURL: HTML file URL to load. Pass `nil` to use UISDK's bundled default.
+    ///   - onAction: Called when the WebView posts a non-built-in action via the
+    ///     `uiBridge` message handler. The `close` action is handled internally
+    ///     (dismisses the WebView) and is not forwarded.
     @MainActor
-    public static func presentWebView() {
+    public static func presentWebView(
+        htmlURL: URL? = nil,
+        onAction: (@MainActor (String) -> Void)? = nil
+    ) {
         guard let top = topViewController() else { return }
-        let vc = WebViewController()
+        let url = htmlURL ?? Bundle.module.url(forResource: "index", withExtension: "html")
+        let vc = WebViewController(htmlURL: url, onAction: onAction)
         vc.modalPresentationStyle = .fullScreen
         top.present(vc, animated: true)
     }
@@ -39,7 +50,19 @@ public enum UISDK {
 private final class WebViewController: UIViewController, WKScriptMessageHandler, WKNavigationDelegate {
     private static let bridgeName = "uiBridge"
 
+    private let htmlURL: URL?
+    private let onAction: (@MainActor (String) -> Void)?
     private var webView: WKWebView!
+
+    init(htmlURL: URL?, onAction: (@MainActor (String) -> Void)?) {
+        self.htmlURL = htmlURL
+        self.onAction = onAction
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -63,7 +86,7 @@ private final class WebViewController: UIViewController, WKScriptMessageHandler,
         ])
         self.webView = webView
 
-        if let url = Bundle.module.url(forResource: "index", withExtension: "html") {
+        if let url = htmlURL {
             webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
         }
     }
@@ -84,7 +107,7 @@ private final class WebViewController: UIViewController, WKScriptMessageHandler,
         case "close":
             dismiss(animated: true)
         default:
-            break
+            onAction?(action)
         }
     }
 }
