@@ -20,15 +20,44 @@ public enum ChildrenSDK {
     @MainActor
     public static func presentHelloWorld() {
         initialize {
-            UISDK.presentWebView { action in
-                switch action {
-                case "launchCamera":
-                    ChildrenSDK.presentWebView()
-                default:
-                    break
-                }
+            presentLogin {
+                presentMainUI()
             }
         }
+    }
+
+    @MainActor
+    private static func presentLogin(onLogin: @escaping @MainActor () -> Void) {
+        guard let top = topViewController() else { return }
+        let htmlURL = Bundle.module.url(forResource: "login", withExtension: "html")
+        let imageURL = splashImageURL()
+        var loginRef: LoginViewController?
+        let login = LoginViewController(htmlURL: htmlURL, imageURL: imageURL) {
+            loginRef?.dismiss(animated: true) {
+                onLogin()
+            }
+            loginRef = nil
+        }
+        loginRef = login
+        login.modalPresentationStyle = .fullScreen
+        top.present(login, animated: true)
+    }
+
+    @MainActor
+    private static func presentMainUI() {
+        UISDK.presentWebView { action in
+            switch action {
+            case "launchCamera":
+                ChildrenSDK.presentWebView()
+            default:
+                break
+            }
+        }
+    }
+
+    private static func splashImageURL() -> URL? {
+        (Bundle.main.object(forInfoDictionaryKey: splashImageURLInfoKey) as? String)
+            .flatMap { $0.isEmpty ? nil : URL(string: $0) }
     }
 
     @MainActor
@@ -37,8 +66,7 @@ public enum ChildrenSDK {
             completion()
             return
         }
-        let imageURL = (Bundle.main.object(forInfoDictionaryKey: splashImageURLInfoKey) as? String)
-            .flatMap { $0.isEmpty ? nil : URL(string: $0) }
+        let imageURL = splashImageURL()
         var splashRef: SplashViewController?
         let splash = SplashViewController(imageURL: imageURL) {
             splashRef?.dismiss(animated: false) {

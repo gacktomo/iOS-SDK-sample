@@ -4,5 +4,7 @@
 <dict>
     <key>ChildrenSDKSplashImageURL</key>
     <string>https://picsum.photos/300/300.jpg</string>
+    <key>NSFaceIDUsageDescription</key>
+    <string>ログイン時の本人確認に使用します。</string>
 </dict>
 </plist>
