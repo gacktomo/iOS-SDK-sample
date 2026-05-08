@@ -15,12 +15,33 @@ public enum ChildrenSDK {
     #if canImport(UIKit)
     @MainActor
     public static func presentHelloWorld() {
-        UISDK.presentWebView { action in
-            switch action {
-            case "launchCamera":
-                ChildrenSDK.presentWebView()
-            default:
-                break
+        initialize {
+            UISDK.presentWebView { action in
+                switch action {
+                case "launchCamera":
+                    ChildrenSDK.presentWebView()
+                default:
+                    break
+                }
+            }
+        }
+    }
+
+    /// Show a splash screen while the SDK "initializes". Currently the
+    /// initialization just waits 2 seconds before invoking `completion`.
+    @MainActor
+    private static func initialize(completion: @escaping @MainActor () -> Void) {
+        guard let top = topViewController() else {
+            completion()
+            return
+        }
+        let splash = SplashViewController()
+        splash.modalPresentationStyle = .fullScreen
+        top.present(splash, animated: false) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                splash.dismiss(animated: false) {
+                    completion()
+                }
             }
         }
     }
