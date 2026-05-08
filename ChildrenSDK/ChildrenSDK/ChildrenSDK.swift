@@ -31,8 +31,6 @@ public enum ChildrenSDK {
         }
     }
 
-    /// Show a splash screen while the SDK "initializes". Currently the
-    /// initialization just waits 2 seconds before invoking `completion`.
     @MainActor
     private static func initialize(completion: @escaping @MainActor () -> Void) {
         guard let top = topViewController() else {
@@ -41,15 +39,16 @@ public enum ChildrenSDK {
         }
         let imageURL = (Bundle.main.object(forInfoDictionaryKey: splashImageURLInfoKey) as? String)
             .flatMap { $0.isEmpty ? nil : URL(string: $0) }
-        let splash = SplashViewController(imageURL: imageURL)
-        splash.modalPresentationStyle = .fullScreen
-        top.present(splash, animated: false) {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                splash.dismiss(animated: false) {
-                    completion()
-                }
+        var splashRef: SplashViewController?
+        let splash = SplashViewController(imageURL: imageURL) {
+            splashRef?.dismiss(animated: false) {
+                completion()
             }
+            splashRef = nil
         }
+        splashRef = splash
+        splash.modalPresentationStyle = .fullScreen
+        top.present(splash, animated: false)
     }
 
     /// Present ChildrenSDK's own WebView (camera launch + close) on top of the

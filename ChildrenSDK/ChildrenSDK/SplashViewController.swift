@@ -9,12 +9,18 @@ import Foundation
 import UIKit
 
 final class SplashViewController: UIViewController {
+    private static let displayDuration: TimeInterval = 2.0
+    private static let fadeDuration: TimeInterval = 0.3
+
     private let imageURL: URL?
+    private let onReady: () -> Void
     private let imageView = UIImageView()
     private let titleLabel = UILabel()
+    private var didStartCompletionTimer = false
 
-    init(imageURL: URL?) {
+    init(imageURL: URL?, onReady: @escaping () -> Void) {
         self.imageURL = imageURL
+        self.onReady = onReady
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -47,7 +53,10 @@ final class SplashViewController: UIViewController {
         imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        // Reserve the image slot in the stack from the start so layout doesn't
+        // shift when the downloaded image fades in.
         imageView.isHidden = (imageURL == nil)
+        imageView.alpha = 0
 
         let stack = UIStackView(arrangedSubviews: [imageView, titleLabel, indicator, subtitle])
         stack.axis = .vertical
@@ -65,17 +74,34 @@ final class SplashViewController: UIViewController {
 
         if let url = imageURL {
             loadImage(from: url)
+        } else {
+            startCompletionTimer()
         }
     }
 
     private func loadImage(from url: URL) {
         URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
-            guard let data, let image = UIImage(data: data) else { return }
             DispatchQueue.main.async {
-                self?.imageView.image = image
-                self?.titleLabel.isHidden = true
+                guard let self else { return }
+                if let data, let image = UIImage(data: data) {
+                    self.imageView.image = image
+                    UIView.animate(withDuration: Self.fadeDuration) {
+                        self.imageView.alpha = 1.0
+                    }
+                }
+                // Whether the image loaded or not, begin the visible-duration
+                // timer now so the splash holds for a fixed time post-load.
+                self.startCompletionTimer()
             }
         }.resume()
+    }
+
+    private func startCompletionTimer() {
+        guard !didStartCompletionTimer else { return }
+        didStartCompletionTimer = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.displayDuration) { [weak self] in
+            self?.onReady()
+        }
     }
 }
 #endif
