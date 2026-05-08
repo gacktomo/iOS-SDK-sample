@@ -5,7 +5,7 @@ let package = Package(
     name: "UISDK",
     platforms: [.iOS(.v15), .macOS(.v12)],
     products: [
-        .library(name: "UISDK", targets: ["UISDK"]),
+        .library(name: "UISDK", type: .static, targets: ["UISDK"]),
     ],
     targets: [
         .target(

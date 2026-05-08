@@ -23,7 +23,7 @@ public enum UISDK {
         onAction: (@MainActor (String) -> Void)? = nil
     ) {
         guard let top = topViewController() else { return }
-        let url = htmlURL ?? Bundle.module.url(forResource: "index", withExtension: "html")
+        let url = htmlURL ?? Bundle.uiSDK.url(forResource: "index", withExtension: "html")
         let vc = WebViewController(htmlURL: url, onAction: onAction)
         vc.modalPresentationStyle = .fullScreen
         top.present(vc, animated: true)

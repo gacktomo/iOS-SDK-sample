@@ -5,7 +5,7 @@ let package = Package(
     name: "ChildSDK",
     platforms: [.iOS(.v15), .macOS(.v12)],
     products: [
-        .library(name: "ChildSDK", targets: ["ChildSDK"]),
+        .library(name: "ChildSDK", type: .static, targets: ["ChildSDK"]),
     ],
     dependencies: [
         .package(path: "../UISDK"),

@@ -80,7 +80,7 @@ final class CameraOverlayViewController: UIViewController, WKScriptMessageHandle
         ])
         self.webView = webView
 
-        if let url = Bundle.module.url(forResource: "camera-overlay", withExtension: "html") {
+        if let url = Bundle.childSDK.url(forResource: "camera-overlay", withExtension: "html") {
             webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
         }
     }

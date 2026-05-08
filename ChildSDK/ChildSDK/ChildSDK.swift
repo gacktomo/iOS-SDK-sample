@@ -4,7 +4,7 @@
 //
 
 import Foundation
-import UISDK
+@_implementationOnly import UISDK
 
 #if canImport(UIKit)
 import UIKit
@@ -29,7 +29,7 @@ public enum ChildSDK {
     @MainActor
     private static func presentLogin(onLogin: @escaping @MainActor () -> Void) {
         guard let top = topViewController() else { return }
-        let htmlURL = Bundle.module.url(forResource: "login", withExtension: "html")
+        let htmlURL = Bundle.childSDK.url(forResource: "login", withExtension: "html")
         let imageURL = splashImageURL()
         var loginRef: LoginViewController?
         let login = LoginViewController(htmlURL: htmlURL, imageURL: imageURL) {
@@ -83,7 +83,7 @@ public enum ChildSDK {
     /// current view stack via UISDK.
     @MainActor
     public static func presentWebView() {
-        let htmlURL = Bundle.module.url(forResource: "child", withExtension: "html")
+        let htmlURL = Bundle.childSDK.url(forResource: "child", withExtension: "html")
         UISDK.presentWebView(htmlURL: htmlURL) { action in
             switch action {
             case "launchCamera":
