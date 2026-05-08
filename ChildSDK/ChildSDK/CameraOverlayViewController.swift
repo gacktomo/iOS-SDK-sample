@@ -1,6 +1,6 @@
 //
 //  CameraOverlayViewController.swift
-//  ChildrenSDK
+//  ChildSDK
 //
 
 import Foundation
@@ -15,7 +15,7 @@ final class CameraOverlayViewController: UIViewController, WKScriptMessageHandle
     private static let bridgeName = "uiBridge"
 
     private let session = AVCaptureSession()
-    private let sessionQueue = DispatchQueue(label: "com.example.ChildrenSDK.cameraSession")
+    private let sessionQueue = DispatchQueue(label: "com.example.ChildSDK.cameraSession")
     private var previewLayer: AVCaptureVideoPreviewLayer!
     private var webView: WKWebView!
 

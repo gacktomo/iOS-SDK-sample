@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>QRログイン</title>
+    <title>ログイン</title>
     <style>
         :root {
             color-scheme: light dark;
         }
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
         html, body {
             margin: 0;
             padding: 0;
@@ -37,14 +35,7 @@
         }
         header {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 24px;
-        }
-        header h1 {
-            font-size: 22px;
-            font-weight: 700;
-            margin: 0;
+            justify-content: flex-end;
         }
         button.close {
             appearance: none;
@@ -65,15 +56,27 @@
 
         main {
             flex: 1;
-        }
-        .actions {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            width: min(320px, 90vw);
-            margin: 0 auto;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
         }
-        button.action {
+        .splash-image {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .splash-image.loaded { opacity: 1; }
+        h1.title {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+            color: #ff9500;
+        }
+        button.login {
             appearance: none;
             border: none;
             border-radius: 12px;
@@ -81,16 +84,14 @@
             font-size: 17px;
             font-weight: 600;
             cursor: pointer;
-            width: 100%;
-        }
-        button.primary {
             background: #ff9500;
             color: #ffffff;
+            min-width: min(280px, 80vw);
+            margin-top: 8px;
         }
-        button.action:active { opacity: 0.7; }
+        button.login:active { opacity: 0.7; }
 
         .sdk-tag {
-            margin-top: 16px;
             text-align: right;
             font-size: 10px;
             font-weight: 500;
@@ -102,17 +103,16 @@
 </head>
 <body>
     <header>
-        <h1>QRログイン</h1>
         <button class="close" id="closeButton" aria-label="閉じる">×</button>
     </header>
 
-    <main></main>
+    <main>
+        <img class="splash-image" id="splashImage" alt="">
+        <h1 class="title">ChildSDK</h1>
+        <button class="login" id="loginButton">ログイン</button>
+    </main>
 
-    <div class="actions">
-        <button class="action primary" id="launchCameraButton">カメラ起動</button>
-    </div>
-
-    <div class="sdk-tag">ChildrenSDK</div>
+    <div class="sdk-tag">ChildSDK</div>
 
     <script>
         (function () {
@@ -128,8 +128,19 @@
                 }
             }
 
-            document.getElementById("launchCameraButton").addEventListener("click", function () {
-                postToNative({ action: "launchCamera" });
+            const config = window.SDK_CONFIG || {};
+            const img = document.getElementById("splashImage");
+            if (config.splashImageURL) {
+                img.addEventListener("load", function () {
+                    img.classList.add("loaded");
+                });
+                img.src = config.splashImageURL;
+            } else {
+                img.style.display = "none";
+            }
+
+            document.getElementById("loginButton").addEventListener("click", function () {
+                postToNative({ action: "login" });
             });
             document.getElementById("closeButton").addEventListener("click", function () {
                 postToNative({ action: "close" });

@@ -2,20 +2,20 @@
 import PackageDescription
 
 let package = Package(
-    name: "ChildrenSDK",
+    name: "ChildSDK",
     platforms: [.iOS(.v15), .macOS(.v12)],
     products: [
-        .library(name: "ChildrenSDK", targets: ["ChildrenSDK"]),
+        .library(name: "ChildSDK", targets: ["ChildSDK"]),
     ],
     dependencies: [
         .package(path: "../UISDK"),
     ],
     targets: [
         .target(
-            name: "ChildrenSDK",
+            name: "ChildSDK",
             dependencies: ["UISDK"],
-            path: "ChildrenSDK",
-            exclude: ["ChildrenSDK.docc"],
+            path: "ChildSDK",
+            exclude: ["ChildSDK.docc"],
             resources: [
                 .process("Resources"),
             ]

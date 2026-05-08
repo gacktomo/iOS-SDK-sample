@@ -8,12 +8,12 @@ let package = Package(
         .library(name: "ParentSDK", targets: ["ParentSDK"]),
     ],
     dependencies: [
-        .package(path: "../ChildrenSDK"),
+        .package(path: "../ChildSDK"),
     ],
     targets: [
         .target(
             name: "ParentSDK",
-            dependencies: ["ChildrenSDK"],
+            dependencies: ["ChildSDK"],
             path: "ParentSDK",
             exclude: ["ParentSDK.docc"]
         ),

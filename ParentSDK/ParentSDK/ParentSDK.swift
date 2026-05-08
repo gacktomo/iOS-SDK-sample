@@ -4,13 +4,13 @@
 //
 
 import Foundation
-import ChildrenSDK
+import ChildSDK
 
 public enum ParentSDK {
     #if canImport(UIKit)
     @MainActor
-    public static func presentChildren() {
-        ChildrenSDK.presentHelloWorld()
+    public static func presentChild() {
+        ChildSDK.presentHelloWorld()
     }
     #endif
 }

@@ -1,14 +1,14 @@
 //
-//  ChildrenSDKTests.swift
-//  ChildrenSDKTests
+//  ChildSDKTests.swift
+//  ChildSDKTests
 //
 //  Created by omatsu on 2026/05/07.
 //
 
 import XCTest
-@testable import ChildrenSDK
+@testable import ChildSDK
 
-final class ChildrenSDKTests: XCTestCase {
+final class ChildSDKTests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.

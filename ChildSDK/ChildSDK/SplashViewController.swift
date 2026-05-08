@@ -1,6 +1,6 @@
 //
 //  SplashViewController.swift
-//  ChildrenSDK
+//  ChildSDK
 //
 
 import Foundation
@@ -35,7 +35,7 @@ final class SplashViewController: UIViewController {
             view.backgroundColor = UIColor(red: 0.165, green: 0.141, blue: 0.063, alpha: 1.0)
         }
 
-        titleLabel.text = "ChildrenSDK"
+        titleLabel.text = "ChildSDK"
         titleLabel.font = .systemFont(ofSize: 24, weight: .bold)
         titleLabel.textColor = UIColor(red: 1.0, green: 0.584, blue: 0.0, alpha: 1.0)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false

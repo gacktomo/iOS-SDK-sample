@@ -1,6 +1,6 @@
 //
 //  LoginViewController.swift
-//  ChildrenSDK
+//  ChildSDK
 //
 
 import Foundation

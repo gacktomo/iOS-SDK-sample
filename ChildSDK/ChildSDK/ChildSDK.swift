@@ -1,6 +1,6 @@
 //
-//  ChildrenSDK.swift
-//  ChildrenSDK
+//  ChildSDK.swift
+//  ChildSDK
 //
 
 import Foundation
@@ -11,10 +11,10 @@ import UIKit
 import AVFoundation
 #endif
 
-public enum ChildrenSDK {
+public enum ChildSDK {
     /// Info.plist key on the host app. Optional. When set, the SDK shows the
     /// downloaded image on the splash screen during initialization.
-    public static let splashImageURLInfoKey = "ChildrenSDKSplashImageURL"
+    public static let splashImageURLInfoKey = "ChildSDKSplashImageURL"
 
     #if canImport(UIKit)
     @MainActor
@@ -48,7 +48,7 @@ public enum ChildrenSDK {
         UISDK.presentWebView { action in
             switch action {
             case "launchCamera":
-                ChildrenSDK.presentWebView()
+                ChildSDK.presentWebView()
             default:
                 break
             }
@@ -79,11 +79,11 @@ public enum ChildrenSDK {
         top.present(splash, animated: false)
     }
 
-    /// Present ChildrenSDK's own WebView (camera launch + close) on top of the
+    /// Present ChildSDK's own WebView (camera launch + close) on top of the
     /// current view stack via UISDK.
     @MainActor
     public static func presentWebView() {
-        let htmlURL = Bundle.module.url(forResource: "children", withExtension: "html")
+        let htmlURL = Bundle.module.url(forResource: "child", withExtension: "html")
         UISDK.presentWebView(htmlURL: htmlURL) { action in
             switch action {
             case "launchCamera":

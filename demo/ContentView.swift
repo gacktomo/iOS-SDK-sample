@@ -19,7 +19,7 @@ struct ContentView: View {
     private var tiles: [Tile] {
         [
             Tile(title: "Open SDK", systemImage: "sparkles") {
-                ParentSDK.presentChildren()
+                ParentSDK.presentChild()
             },
             Tile(title: "Feature 2", systemImage: "square.grid.2x2", action: nil),
             Tile(title: "Feature 3", systemImage: "bolt", action: nil),
