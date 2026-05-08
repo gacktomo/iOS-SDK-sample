@@ -403,7 +403,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "base-Info.plist";
+				INFOPLIST_FILE = "demo/base-Info.plist";
 				INFOPLIST_KEY_NSCameraUsageDescription = "ChildSDKのWebViewからカメラを起動するために使用します。";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -447,7 +447,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "base-Info.plist";
+				INFOPLIST_FILE = "demo/base-Info.plist";
 				INFOPLIST_KEY_NSCameraUsageDescription = "ChildSDKのWebViewからカメラを起動するために使用します。";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
