@@ -12,6 +12,10 @@ import AVFoundation
 #endif
 
 public enum ChildrenSDK {
+    /// Info.plist key on the host app. Optional. When set, the SDK shows the
+    /// downloaded image on the splash screen during initialization.
+    public static let splashImageURLInfoKey = "ChildrenSDKSplashImageURL"
+
     #if canImport(UIKit)
     @MainActor
     public static func presentHelloWorld() {
@@ -35,7 +39,9 @@ public enum ChildrenSDK {
             completion()
             return
         }
-        let splash = SplashViewController()
+        let imageURL = (Bundle.main.object(forInfoDictionaryKey: splashImageURLInfoKey) as? String)
+            .flatMap { $0.isEmpty ? nil : URL(string: $0) }
+        let splash = SplashViewController(imageURL: imageURL)
         splash.modalPresentationStyle = .fullScreen
         top.present(splash, animated: false) {
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
