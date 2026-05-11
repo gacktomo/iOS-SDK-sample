@@ -4,3 +4,11 @@ build/
 DerivedData/
 xcuserdata/
 *.xcuserstate
+
+# Android
+.gradle/
+local.properties
+.idea/
+*.iml
+captures/
+.cxx/

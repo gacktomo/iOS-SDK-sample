@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>UISDK</title>
+    <style>
+        :root {
+            color-scheme: light dark;
+            --bg: #ffffff;
+            --fg: #1c1c1e;
+            --muted: rgba(60, 60, 67, 0.6);
+            --tile-fill: rgba(120, 120, 128, 0.12);
+            --block-strong: rgba(120, 120, 128, 0.28);
+            --block-weak: rgba(120, 120, 128, 0.20);
+            --accent: #007aff;
+            --accent-bg: rgba(0, 122, 255, 0.15);
+            --tile-disabled-fg: rgba(120, 120, 128, 0.45);
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #1c1c1e;
+                --fg: #f2f2f7;
+                --muted: rgba(235, 235, 245, 0.6);
+                --tile-fill: rgba(120, 120, 128, 0.18);
+                --block-strong: rgba(235, 235, 245, 0.30);
+                --block-weak: rgba(235, 235, 245, 0.22);
+                --accent: #0a84ff;
+                --accent-bg: rgba(10, 132, 255, 0.22);
+                --tile-disabled-fg: rgba(235, 235, 245, 0.40);
+            }
+        }
+        * { box-sizing: border-box; }
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Roboto", "Helvetica Neue", sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 0;
+        }
+        button.close {
+            appearance: none;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 16px;
+            background: var(--tile-fill);
+            color: var(--fg);
+            font-size: 18px;
+            line-height: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        button.close:active { opacity: 0.6; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .tile {
+            appearance: none;
+            border: none;
+            min-height: 90px;
+            padding: 12px 8px;
+            border-radius: 12px;
+            background: var(--tile-fill);
+            color: var(--tile-disabled-fg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: inherit;
+            cursor: default;
+        }
+        .tile.enabled {
+            background: var(--accent-bg);
+            color: var(--accent);
+            cursor: pointer;
+        }
+        .tile.enabled:active { opacity: 0.7; }
+        .tile .icon {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .tile .icon svg {
+            width: 100%;
+            height: 100%;
+            fill: currentColor;
+        }
+        .tile .label {
+            font-size: 12px;
+            line-height: 1.2;
+            text-align: center;
+        }
+
+        section.skeleton h2 {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--muted);
+            margin: 8px 0;
+        }
+        .skeleton-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 10px;
+            background: var(--tile-fill);
+            border-radius: 10px;
+            margin-bottom: 8px;
+        }
+        .skeleton-row .thumb {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            background: var(--block-strong);
+            flex-shrink: 0;
+        }
+        .skeleton-row .lines {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .skeleton-row .line {
+            height: 12px;
+            border-radius: 4px;
+            background: var(--block-strong);
+        }
+        .skeleton-row .line.short {
+            height: 10px;
+            width: 60%;
+            background: var(--block-weak);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>UISDK</h1>
+        <button class="close" id="closeButton" aria-label="閉じる">×</button>
+    </header>
+
+    <div class="grid" id="tileGrid"></div>
+
+    <section class="skeleton">
+        <h2>Recommended</h2>
+        <div class="skeleton-row"><div class="thumb"></div><div class="lines"><div class="line"></div><div class="line short"></div></div></div>
+        <div class="skeleton-row"><div class="thumb"></div><div class="lines"><div class="line"></div><div class="line short"></div></div></div>
+    </section>
+
+    <section class="skeleton">
+        <h2>Recent Activity</h2>
+        <div class="skeleton-row"><div class="thumb"></div><div class="lines"><div class="line"></div><div class="line short"></div></div></div>
+        <div class="skeleton-row"><div class="thumb"></div><div class="lines"><div class="line"></div><div class="line short"></div></div></div>
+    </section>
+
+    <script>
+        (function () {
+            function postToNative(payload) {
+                try {
+                    if (window.uiBridge && typeof window.uiBridge.postMessage === "function") {
+                        window.uiBridge.postMessage(JSON.stringify(payload));
+                    }
+                } catch (e) {
+                    console.error("native bridge failed", e);
+                }
+            }
+
+            const ICONS = {
+                qr: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm8 0h2v2h-2v-2zm4 0h2v2h-2v-2zm-4 4h2v2h-2v-2zm2-2h2v2h-2v-2zm2 2h2v2h-2v-2zm0-4h2v2h-2v-2z"/></svg>',
+                grid: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z"/></svg>',
+                bolt: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg>',
+                bell: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22a2 2 0 0 0 2-2h-4a2 2 0 0 0 2 2zm6-6V11a6 6 0 1 0-12 0v5l-2 2v1h16v-1l-2-2z"/></svg>',
+                gear: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.4 13a7.5 7.5 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-1.7-1L15 3H9l-.3 2.9a7 7 0 0 0-1.7 1l-2.4-1-2 3.4L4.6 11a7.5 7.5 0 0 0 0 2L2.6 14.6l2 3.4 2.4-1a7 7 0 0 0 1.7 1L9 21h6l.3-2.9a7 7 0 0 0 1.7-1l2.4 1 2-3.4-2-1.7zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg>',
+                star: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>',
+                heart: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/></svg>',
+                bookmark: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h12v20l-6-4-6 4V2z"/></svg>',
+                tray: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h4l2 3h6l2-3h4v6H3v-6zm0-8h18v6h-5l-2 3h-4l-2-3H3V5z"/></svg>'
+            };
+
+            const TILES = [
+                { id: "qrLogin", label: "QRログイン", icon: "qr", action: "launchCamera" },
+                { id: "f2", label: "Feature 2", icon: "grid" },
+                { id: "f3", label: "Feature 3", icon: "bolt" },
+                { id: "f4", label: "Feature 4", icon: "bell" },
+                { id: "f5", label: "Feature 5", icon: "gear" },
+                { id: "f6", label: "Feature 6", icon: "star" },
+                { id: "f7", label: "Feature 7", icon: "heart" },
+                { id: "f8", label: "Feature 8", icon: "bookmark" },
+                { id: "f9", label: "Feature 9", icon: "tray" }
+            ];
+
+            const grid = document.getElementById("tileGrid");
+            TILES.forEach(function (t) {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "tile" + (t.action ? " enabled" : "");
+                btn.disabled = !t.action;
+                btn.innerHTML =
+                    '<span class="icon">' + ICONS[t.icon] + '</span>' +
+                    '<span class="label">' + t.label + '</span>';
+                if (t.action) {
+                    btn.addEventListener("click", function () {
+                        postToNative({ action: t.action });
+                    });
+                }
+                grid.appendChild(btn);
+            });
+
+            document.getElementById("closeButton").addEventListener("click", function () {
+                postToNative({ action: "close" });
+            });
+        })();
+    </script>
+</body>
+</html>

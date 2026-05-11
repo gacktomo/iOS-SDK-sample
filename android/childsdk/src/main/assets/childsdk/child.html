@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>QRログイン</title>
+    <style>
+        :root {
+            color-scheme: light dark;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Roboto", "Helvetica Neue", sans-serif;
+            background: #fff8e1;
+            color: #1c1c1e;
+        }
+        @media (prefers-color-scheme: dark) {
+            html, body {
+                background: #2a2410;
+                color: #f2f2f7;
+            }
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
+            padding: 16px;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 0;
+        }
+        button.close {
+            appearance: none;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 16px;
+            background: rgba(120, 120, 128, 0.16);
+            color: inherit;
+            font-size: 18px;
+            line-height: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        button.close:active { opacity: 0.6; }
+
+        main {
+            flex: 1;
+        }
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: min(320px, 90vw);
+            margin: 0 auto;
+        }
+        button.action {
+            appearance: none;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 32px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+        button.primary {
+            background: #ff9500;
+            color: #ffffff;
+        }
+        button.action:active { opacity: 0.7; }
+
+        .sdk-tag {
+            margin-top: 16px;
+            text-align: right;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            opacity: 0.45;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>QRログイン</h1>
+        <button class="close" id="closeButton" aria-label="閉じる">×</button>
+    </header>
+
+    <main></main>
+
+    <div class="actions">
+        <button class="action primary" id="launchCameraButton">カメラ起動</button>
+    </div>
+
+    <div class="sdk-tag">ChildSDK</div>
+
+    <script>
+        (function () {
+            function postToNative(payload) {
+                try {
+                    if (window.uiBridge && typeof window.uiBridge.postMessage === "function") {
+                        window.uiBridge.postMessage(JSON.stringify(payload));
+                    }
+                } catch (e) {
+                    console.error("native bridge failed", e);
+                }
+            }
+
+            document.getElementById("launchCameraButton").addEventListener("click", function () {
+                postToNative({ action: "launchCamera" });
+            });
+            document.getElementById("closeButton").addEventListener("click", function () {
+                postToNative({ action: "close" });
+            });
+        })();
+    </script>
+</body>
+</html>
