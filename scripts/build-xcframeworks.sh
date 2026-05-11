@@ -2,8 +2,9 @@
 #
 # build-xcframeworks.sh
 #
-# ChildSDK.xcframework を生成する。UISDK のシンボル + リソースを ChildSDK に
-# 静的に焼き込んだ状態で 1 つの XCFramework として出力する。
+# ChildSDK.xcframework を生成し、配布用 zip を組み立てる。
+# UISDK のシンボル + リソースを ChildSDK に静的に焼き込んだ
+# static XCFramework として出力する。
 #
 # 仕組み:
 #   - UISDK は Package.swift で type: .static のため、archive 時に ChildSDK
@@ -12,14 +13,22 @@
 #     UISDK_UISDK.bundle に集約されるが、framework 直下に配置されない。
 #     archive 完了後、本スクリプトが手動でコピーする。
 #
+# 環境変数:
+#   VERSION  配布バージョン文字列。未指定なら git describe / "dev" にフォールバック。
+#
 # 出力:
 #   build/ChildSDK.xcframework
+#   build/ChildSDK-<version>.zip           (xcframework + dist/README.md)
+#   build/ChildSDK-<version>.zip.sha256    (SPM binaryTarget 用 checksum)
 #
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BUILD_DIR="${ROOT}/build"
 WORK_DIR="${BUILD_DIR}/work"
+DIST_DIR="${ROOT}/dist"
+
+VERSION="${VERSION:-$(git -C "${ROOT}" describe --tags --always --dirty 2>/dev/null || echo dev)}"
 
 rm -rf "${BUILD_DIR}"
 mkdir -p "${BUILD_DIR}" "${WORK_DIR}"
@@ -116,17 +125,60 @@ build_xcframework() {
   xcodebuild -create-xcframework "${framework_args[@]}" -output "${output}"
 }
 
+##
+## package_zip
+##
+## ChildSDK.xcframework + dist/ 配下のドキュメントを zip にまとめ、
+## SPM binaryTarget 用の checksum も算出する。
+##
+package_zip() {
+  local stage_dir="${WORK_DIR}/stage"
+  local zip_name="ChildSDK-${VERSION}.zip"
+  local zip_path="${BUILD_DIR}/${zip_name}"
+
+  echo ">>> Packaging ${zip_name}"
+  rm -rf "${stage_dir}"
+  mkdir -p "${stage_dir}"
+
+  # XCFramework
+  cp -R "${BUILD_DIR}/ChildSDK.xcframework" "${stage_dir}/"
+
+  # 配布ドキュメント (dist/ 直下を丸ごと取り込む)
+  if [ -d "${DIST_DIR}" ]; then
+    find "${DIST_DIR}" -maxdepth 1 -type f -exec cp {} "${stage_dir}/" \;
+  fi
+
+  # zip (シンボリックリンクを保持しないと XCFramework が壊れる)
+  ( cd "${stage_dir}" && zip -ry "${zip_path}" . > /dev/null )
+
+  # checksum (SPM binaryTarget の url で参照する場合に使う)
+  if command -v swift >/dev/null 2>&1; then
+    swift package --package-path "${ROOT}/ChildSDK" compute-checksum "${zip_path}" > "${zip_path}.sha256" 2>/dev/null \
+      || shasum -a 256 "${zip_path}" | awk '{print $1}' > "${zip_path}.sha256"
+  else
+    shasum -a 256 "${zip_path}" | awk '{print $1}' > "${zip_path}.sha256"
+  fi
+}
+
 main() {
-  echo "===> Building ChildSDK.xcframework (with UISDK statically embedded)"
+  echo "===> Building ChildSDK.xcframework (version: ${VERSION})"
   build_xcframework \
     "${ROOT}/ChildSDK/ChildSDK.xcodeproj" \
     "ChildSDK" \
     "${BUILD_DIR}/ChildSDK.xcframework" \
     "UISDK_UISDK.bundle"
 
+  package_zip
+
   echo
   echo "✅ Build complete:"
-  ls -1d "${BUILD_DIR}"/*.xcframework
+  ls -1 "${BUILD_DIR}/ChildSDK.xcframework" "${BUILD_DIR}"/ChildSDK-*.zip "${BUILD_DIR}"/ChildSDK-*.zip.sha256 2>/dev/null | sed 's/^/  /'
+  echo
+  echo "📦 Zip top-level contents:"
+  unzip -Z1 "${BUILD_DIR}/ChildSDK-${VERSION}.zip" | awk -F/ '{print $1}' | sort -u | sed 's/^/  /'
+  echo
+  echo "🔐 Checksum:"
+  echo "  $(cat "${BUILD_DIR}/ChildSDK-${VERSION}.zip.sha256")"
 }
 
 main "$@"
