@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>HTML Camera</title>
+    <style>
+        * { box-sizing: border-box; }
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background: #000000;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Roboto", "Helvetica Neue", sans-serif;
+            overflow: hidden;
+        }
+        .stage {
+            position: fixed;
+            inset: 0;
+        }
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: #000000;
+        }
+        .overlay {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 12px;
+            pointer-events: none;
+        }
+        .top-bar, .bottom-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: auto;
+        }
+        .badge {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        button.close {
+            appearance: none;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: #ffffff;
+            font-size: 22px;
+            line-height: 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        button.close:active { opacity: 0.7; }
+        .status {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.5;
+            padding: 14px 18px;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            max-width: 80%;
+            display: none;
+        }
+        .status.visible { display: block; }
+        .status .title { font-weight: 600; margin-bottom: 4px; }
+        .status .detail { font-size: 12px; opacity: 0.8; word-break: break-word; }
+    </style>
+</head>
+<body>
+    <div class="stage">
+        <video id="preview" autoplay playsinline muted></video>
+    </div>
+
+    <div class="overlay">
+        <div class="top-bar">
+            <button class="close" id="closeButton" aria-label="閉じる">×</button>
+            <span class="badge">HTML Camera (getUserMedia)</span>
+        </div>
+        <div class="bottom-bar">
+            <span class="badge" id="streamBadge">starting…</span>
+        </div>
+    </div>
+
+    <div class="status" id="status">
+        <div class="title" id="statusTitle"></div>
+        <div class="detail" id="statusDetail"></div>
+    </div>
+
+    <script>
+        (function () {
+            var video = document.getElementById("preview");
+            var streamBadge = document.getElementById("streamBadge");
+            var status = document.getElementById("status");
+            var statusTitle = document.getElementById("statusTitle");
+            var statusDetail = document.getElementById("statusDetail");
+            var currentStream = null;
+
+            function postToNative(payload) {
+                try {
+                    if (window.uiBridge && typeof window.uiBridge.postMessage === "function") {
+                        // Android: @JavascriptInterface expects a string
+                        window.uiBridge.postMessage(JSON.stringify(payload));
+                    } else if (window.webkit
+                        && window.webkit.messageHandlers
+                        && window.webkit.messageHandlers.uiBridge) {
+                        // iOS: WKScriptMessageHandler accepts a JSON object
+                        window.webkit.messageHandlers.uiBridge.postMessage(payload);
+                    }
+                } catch (e) {
+                    console.error("native bridge failed", e);
+                }
+            }
+
+            function showStatus(title, detail) {
+                statusTitle.textContent = title;
+                statusDetail.textContent = detail || "";
+                status.classList.add("visible");
+            }
+
+            function hideStatus() {
+                status.classList.remove("visible");
+            }
+
+            function stopStream() {
+                if (currentStream) {
+                    currentStream.getTracks().forEach(function (t) { t.stop(); });
+                    currentStream = null;
+                }
+            }
+
+            function startCamera() {
+                streamBadge.textContent = "requesting camera…";
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    showStatus("getUserMedia 非対応", "このWebViewはMediaDevices APIを提供していません。");
+                    streamBadge.textContent = "unsupported";
+                    return;
+                }
+                navigator.mediaDevices
+                    .getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false })
+                    .then(function (stream) {
+                        currentStream = stream;
+                        video.srcObject = stream;
+                        streamBadge.textContent = "streaming";
+                        hideStatus();
+                    })
+                    .catch(function (err) {
+                        streamBadge.textContent = "error";
+                        showStatus("カメラを起動できません", (err && (err.name + ": " + err.message)) || String(err));
+                    });
+            }
+
+            document.getElementById("closeButton").addEventListener("click", function () {
+                stopStream();
+                postToNative({ action: "close" });
+            });
+
+            window.addEventListener("pagehide", stopStream);
+
+            startCamera();
+        })();
+    </script>
+</body>
+</html>

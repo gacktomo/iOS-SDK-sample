@@ -8,7 +8,6 @@ import Foundation
 
 #if canImport(UIKit)
 import UIKit
-import AVFoundation
 #endif
 
 public enum ChildSDK {
@@ -94,46 +93,16 @@ public enum ChildSDK {
         }
     }
 
+    /// Present the HTML-based camera page (getUserMedia inside WKWebView).
+    /// The iOS camera permission is handled by the WebView itself — the OS
+    /// prompt appears on the first call only; WKWebView's per-request dialog
+    /// is suppressed by `HTMLCameraViewController`'s WKUIDelegate.
     @MainActor
     private static func launchCamera() {
-        switch AVCaptureDevice.authorizationStatus(for: .video) {
-        case .authorized:
-            presentCameraOverlay()
-        case .notDetermined:
-            AVCaptureDevice.requestAccess(for: .video) { granted in
-                Task { @MainActor in
-                    if granted {
-                        presentCameraOverlay()
-                    } else {
-                        showCameraDeniedAlert()
-                    }
-                }
-            }
-        case .denied, .restricted:
-            showCameraDeniedAlert()
-        @unknown default:
-            showCameraDeniedAlert()
-        }
-    }
-
-    @MainActor
-    private static func presentCameraOverlay() {
         guard let top = topViewController() else { return }
-        let vc = CameraOverlayViewController()
+        let vc = HTMLCameraViewController()
         vc.modalPresentationStyle = .fullScreen
         top.present(vc, animated: true)
-    }
-
-    @MainActor
-    private static func showCameraDeniedAlert() {
-        guard let top = topViewController() else { return }
-        let alert = UIAlertController(
-            title: "カメラを利用できません",
-            message: "設定アプリからカメラの利用を許可してください。",
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        top.present(alert, animated: true)
     }
 
     @MainActor

@@ -30,6 +30,11 @@
             android:exported="false"
             android:theme="@style/Theme.AppCompat.NoActionBar"
             android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity
+            android:name=".internal.HTMLCameraActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
     </application>
 
 </manifest>
