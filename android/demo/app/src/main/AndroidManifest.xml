@@ -11,6 +11,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Demo">
+        <!-- Read by ChildSDK at runtime. Value is injected per product flavor
+             via manifestPlaceholders["childSDKWebViewURLOverride"] in build.gradle.kts. -->
+        <meta-data
+            android:name="ChildSDKWebViewURLOverride"
+            android:value="${childSDKWebViewURLOverride}" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

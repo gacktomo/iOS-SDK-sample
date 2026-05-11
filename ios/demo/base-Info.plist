@@ -6,5 +6,14 @@
     <string>https://picsum.photos/300/300.jpg</string>
     <key>NSFaceIDUsageDescription</key>
     <string>ログイン時の本人確認に使用します。</string>
+    <!--
+      Permits cleartext HTTP traffic to localhost so the "demo (Local Web)"
+      scheme can point ChildSDK's WebView at the Vite dev server in web/.
+    -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsLocalNetworking</key>
+        <true/>
+    </dict>
 </dict>
 </plist>

@@ -13,7 +13,8 @@ public enum UISDK {
     /// Present a WebView modally.
     ///
     /// - Parameters:
-    ///   - htmlURL: HTML file URL to load. Pass `nil` to use UISDK's bundled default.
+    ///   - htmlURL: HTML/URL to load (`file://` or `http(s)://`). Pass `nil` to
+    ///     use UISDK's bundled default.
     ///   - onAction: Called when the WebView posts a non-built-in action via the
     ///     `uiBridge` message handler. The `close` action is handled internally
     ///     (dismisses the WebView) and is not forwarded.
@@ -87,7 +88,11 @@ private final class WebViewController: UIViewController, WKScriptMessageHandler,
         self.webView = webView
 
         if let url = htmlURL {
-            webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
+            if url.isFileURL {
+                webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
+            } else {
+                webView.load(URLRequest(url: url))
+            }
         }
     }
 

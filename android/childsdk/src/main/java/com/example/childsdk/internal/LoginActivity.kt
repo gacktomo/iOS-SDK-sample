@@ -101,12 +101,30 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun proceedToMainUI() {
-        UISDK.presentWebView(this, htmlAssetPath = null) { host, action ->
+        UISDK.presentWebView(
+            context = this,
+            htmlAssetPath = null,
+            htmlUrl = mainUIURLOverride(),
+        ) { host, action ->
             if (action == "launchCamera") {
                 com.example.childsdk.ChildSDK.presentWebView(host)
             }
         }
         finish()
+    }
+
+    /**
+     * Reads the host AndroidManifest `<meta-data>` `ChildSDKWebViewURLOverride`.
+     * Returns `null` when unset or empty so UISDK falls back to its bundled HTML.
+     * Used to point ChildSDK's main UI at a local Vite dev server during
+     * development (set via the `localWeb` product flavor in the demo app).
+     */
+    private fun mainUIURLOverride(): String? {
+        val ai = packageManager.getApplicationInfo(
+            packageName,
+            android.content.pm.PackageManager.GET_META_DATA,
+        )
+        return ai.metaData?.getString("ChildSDKWebViewURLOverride")?.takeIf { it.isNotEmpty() }
     }
 
     private fun showBiometricsUnavailableAlert() {

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!--
+      localWeb flavor only. Permits cleartext HTTP traffic to the host machine
+      so the WebView can load the Vite dev server. 10.0.2.2 is the Android
+      emulator's mapping to the host loopback.
+    -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">10.0.2.2</domain>
+        <domain includeSubdomains="false">localhost</domain>
+    </domain-config>
+</network-security-config>

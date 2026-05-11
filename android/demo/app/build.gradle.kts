@@ -37,6 +37,22 @@ android {
     buildFeatures {
         compose = true
     }
+
+    // Switch the UISDK WebView source via Build Variants panel:
+    //   - bundledDebug   → uses the SDK's bundled assets/uisdk/index.html
+    //   - localWebDebug  → loads http://10.0.2.2:5173/ (Vite dev server on host)
+    // The localWeb flavor's source set also enables cleartext for the loopback host.
+    flavorDimensions += "webSource"
+    productFlavors {
+        create("bundled") {
+            dimension = "webSource"
+            manifestPlaceholders["childSDKWebViewURLOverride"] = ""
+        }
+        create("localWeb") {
+            dimension = "webSource"
+            manifestPlaceholders["childSDKWebViewURLOverride"] = "http://10.0.2.2:5173/"
+        }
+    }
 }
 
 dependencies {

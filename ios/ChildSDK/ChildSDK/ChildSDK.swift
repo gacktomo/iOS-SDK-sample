@@ -43,9 +43,17 @@ public enum ChildSDK {
         top.present(login, animated: true)
     }
 
+    /// Process-environment variable read by `presentMainUI`. When set to a URL
+    /// string, the main UI WebView loads that URL instead of UISDK's bundled
+    /// HTML. Intended for local development against the `web/` Vite dev server;
+    /// the shared "demo (Local Web)" Xcode scheme sets this.
+    public static let mainUIURLOverrideEnvKey = "CHILDSDK_WEBVIEW_URL_OVERRIDE"
+
     @MainActor
     private static func presentMainUI() {
-        UISDK.presentWebView { action in
+        let override = ProcessInfo.processInfo.environment[mainUIURLOverrideEnvKey]
+            .flatMap { $0.isEmpty ? nil : URL(string: $0) }
+        UISDK.presentWebView(htmlURL: override) { action in
             switch action {
             case "launchCamera":
                 ChildSDK.presentWebView()

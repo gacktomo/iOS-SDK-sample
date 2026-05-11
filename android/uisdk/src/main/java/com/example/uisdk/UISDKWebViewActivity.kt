@@ -12,6 +12,7 @@ class UISDKWebViewActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_HTML_ASSET = "uisdk.html_asset"
+        const val EXTRA_HTML_URL = "uisdk.html_url"
         private const val DEFAULT_ASSET = "uisdk/index.html"
         private const val BRIDGE_NAME = "uiBridge"
 
@@ -34,8 +35,14 @@ class UISDKWebViewActivity : AppCompatActivity() {
         webView.settings.allowFileAccess = false
         webView.addJavascriptInterface(Bridge(), BRIDGE_NAME)
 
-        val asset = intent.getStringExtra(EXTRA_HTML_ASSET) ?: DEFAULT_ASSET
-        webView.loadUrl("file:///android_asset/$asset")
+        val url = intent.getStringExtra(EXTRA_HTML_URL)
+        val asset = intent.getStringExtra(EXTRA_HTML_ASSET)
+        val targetUrl = when {
+            url != null -> url
+            asset != null -> "file:///android_asset/$asset"
+            else -> "file:///android_asset/$DEFAULT_ASSET"
+        }
+        webView.loadUrl(targetUrl)
     }
 
     override fun onDestroy() {
